@@ -1,5 +1,5 @@
 name: network_breeds
-description: "A new Flutter package project."
+description: "Package of network, in App CatBreeds."
 version: 0.0.1
 publish_to: none
 
@@ -17,12 +17,19 @@ dependencies:
   package_info_plus: ^5.0.1
   device_info_plus: ^9.1.1
   equatable: ^2.0.5
-  utils_breeds:
-    path: ../utils_breeds
-  models_breeds:
-    path: ../models_breeds
+
   l10n_breeds:
-    path: ../l10n_breeds
+    git:
+      url: https://github.com/wilver06w/l10n_breeds.git
+      ref: main
+  utils_breeds:
+    git:
+      url: https://github.com/wilver06w/utils_breeds.git
+      ref: main
+  models_breeds:
+    git:
+      url: https://github.com/wilver06w/models_breeds.git
+      ref: main
 dev_dependencies:
   flutter_test:
     sdk: flutter
