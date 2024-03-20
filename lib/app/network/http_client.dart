@@ -5,12 +5,9 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:l10n_breeds/generated/l10n.dart';
 import 'package:network_breeds/app/network/dio.dart';
 import 'package:network_breeds/app/network/http_client.dart';
-import 'package:network_breeds/app/network/interceptors/disabled_interceptor.dart';
-import 'package:network_breeds/app/network/interceptors/errors_interceptor.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:utils_breeds/utils/config/client_config.dart';
 import 'package:utils_breeds/utils/config/environment.dart';
-import 'package:utils_breeds/utils/preferences.dart';
 
 export 'package:dio/dio.dart';
 export 'package:flutter_modular/flutter_modular.dart';
@@ -41,23 +38,12 @@ class XigoHttpClient {
     _singleton._msDio = XigoSharedDio(
       baseUrl: config.country.api!,
       appName: 'app-breeds',
-      interceptors: [
-        ErrorsInterceptor(Modular.get()),
-        DisabledUserInterceptor(
-          onDisabledUser: () {
-            Modular.to.pushNamedAndRemoveUntil(
-              '/home/',
-              (_) => false,
-            );
-          },
-        ),
-      ],
+      interceptors: [],
       appVersion: _singleton._appVersion,
       countryCode: config.country.locale?.countryCode ?? '',
       langCode: config.country.locale?.languageCode ?? '',
       os: _getOsName(),
       userAgent: _singleton._userAgent,
-      transactionId: _getTransactionId(),
       deviceVersion: _singleton._deviceVersion,
       enableLogs: env != Environment.prod,
     );
@@ -83,11 +69,6 @@ class XigoHttpClient {
 
   String _getOsName() {
     return Platform.isIOS ? 'ios' : 'android';
-  }
-
-  String _getTransactionId() {
-    final prefs = Modular.get<Preferences>();
-    return prefs.traceId;
   }
 
   Future<String> _getDeviceVersion() async {

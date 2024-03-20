@@ -26,7 +26,6 @@ class XigoSharedDio {
     this.langCode = '',
     this.os = '',
     this.userAgent = '',
-    this.transactionId = '',
     this.deviceVersion = '',
     this.deviceUuid = '',
     this.aditionalHeaders = const {},
@@ -78,11 +77,6 @@ class XigoSharedDio {
   ///
   /// `X-Device-Version`
   String deviceVersion;
-
-  /// This property is a value in Http request headers.
-  ///
-  /// `X-Transaction-ID`
-  String transactionId;
 
   /// This property is a value in Http request headers.
   ///
@@ -162,15 +156,6 @@ class XigoSharedDio {
       'os': os,
       'App-name': appName,
       'App-version': appVersion,
-      'User-Agent': userAgent,
-      'device-uuid': deviceUuid,
-      'X-App-Name': appName,
-      'X-Country': countryCode,
-      'X-Lang': langCode,
-      'X-App-Version': appVersion,
-      'X-Device-Version': deviceVersion,
-      'X-Transaction-ID': transactionId,
-      'X-Device-Uuid': deviceUuid,
       ...aditionalHeaders
     };
   }
