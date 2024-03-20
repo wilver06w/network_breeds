@@ -3,18 +3,14 @@ import 'dart:ui';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:l10n_breeds/generated/l10n.dart';
-import 'package:models_breeds/app/models/token.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:utils_breeds/utils/config/client_config.dart';
-import 'package:utils_breeds/utils/config/environment.dart';
-import 'package:utils_breeds/utils/preferences.dart';
 import 'package:network_breeds/app/network/dio.dart';
 import 'package:network_breeds/app/network/http_client.dart';
 import 'package:network_breeds/app/network/interceptors/disabled_interceptor.dart';
 import 'package:network_breeds/app/network/interceptors/errors_interceptor.dart';
-import 'package:network_breeds/app/network/interceptors/retry_interceptor.dart';
-import 'package:network_breeds/app/network/jwt.dart';
-import 'package:network_breeds/app/network/token.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:utils_breeds/utils/config/client_config.dart';
+import 'package:utils_breeds/utils/config/environment.dart';
+import 'package:utils_breeds/utils/preferences.dart';
 
 export 'package:dio/dio.dart';
 export 'package:flutter_modular/flutter_modular.dart';
@@ -44,18 +40,13 @@ class XigoHttpClient {
   XigoHttpClient getInstance(AppConfig config) {
     _singleton._msDio = XigoSharedDio(
       baseUrl: config.country.api!,
-      appName: 'app-conductor',
+      appName: 'app-breeds',
       interceptors: [
         ErrorsInterceptor(Modular.get()),
-        XigoRetryInterceptor(
-          prefs: Modular.get<Preferences>(),
-          httpClient: _singleton,
-          tokenRepository: TokenRepository(),
-        ),
         DisabledUserInterceptor(
           onDisabledUser: () {
             Modular.to.pushNamedAndRemoveUntil(
-              '/auth/status/blocked',
+              '/home/',
               (_) => false,
             );
           },
@@ -78,39 +69,16 @@ class XigoHttpClient {
       ),
     );
 
-    _addToken();
+    updateDeviceHeaders();
     _addHeaderXsource();
     return _singleton;
   }
 
-  void _addToken() {
-    final prefs = Modular.get<Preferences>();
-    if (prefs.msToken?.accessToken != null) {
-      updateHeadersWithToken(prefs.msToken!);
-    }
-    _addDeviceUuid(prefs.msToken?.accessToken ?? '');
-  }
-
-  void _addDeviceUuid(String token) {
-    final uuid = deviceUuid(token);
-    if (uuid.isNotEmpty) {
-      updateDeviceHeaders(uuid);
-    }
-  }
-
-  void updateDeviceHeaders(String deviceUuid) {
+  void updateDeviceHeaders() {
     final headers = {
-      'device-uuid': deviceUuid,
-      'X-Device-Uuid': deviceUuid,
+      'x-api-key': 'bda53789-d59e-46cd-9bc4-2936630fde39',
     };
     _msDio.addHeaders(headers);
-  }
-
-  void updateHeadersWithToken(Token token) {
-    _msDio.addHeaders({
-      HttpHeaders.authorizationHeader: 'Bearer ${token.accessToken}',
-    });
-    _addDeviceUuid(token.accessToken ?? '');
   }
 
   String _getOsName() {
@@ -140,7 +108,7 @@ class XigoHttpClient {
     final dartShortVersion = dartFullVersion.split(' ')[0];
     final os = _getOsName();
     final deviceOSversion = await _getDeviceVersion();
-    return 'Dart/$dartShortVersion - XigoConductor/${packageInfo.version} - OS/$os - Version/$deviceOSversion';
+    return 'Dart/$dartShortVersion - Breed/${packageInfo.version} - OS/$os - Version/$deviceOSversion';
   }
 
   void _addHeaderXsource() {
@@ -150,21 +118,5 @@ class XigoHttpClient {
         "X-source": source,
       });
     }
-  }
-
-  //verifico si en el payload del Token tiene el device_uuid
-  String deviceUuid(String token) {
-    String deviceUuid = '';
-    if (token.isEmpty) {
-      return deviceUuid;
-    }
-    try {
-      final map = Jwt.parseJwt(token);
-      final String uuid = (map['device_uuid'] ?? '');
-      if (uuid.isNotEmpty) {
-        deviceUuid = uuid;
-      }
-    } catch (_) {}
-    return deviceUuid;
   }
 }
